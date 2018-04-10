@@ -1,0 +1,16 @@
+{
+  "rules": {
+    "import/extensions": 0,
+    "import/no-extraneous-dependencies": 0,
+    "import/no-unresolved": [2, { "ignore": ["SDK.js"] }],
+    "linebreak-style": 0,
+    "camelcase": 0,
+    "no-var": 0,
+    "vars-on-top": 0,
+    "no-console": 0
+  },
+  "env": {
+    "commonjs": true,
+    "node": true
+  }
+}
