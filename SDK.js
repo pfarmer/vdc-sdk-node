@@ -4,6 +4,9 @@ Author: Peter Farmer
 
 */
 
+
+// TODO: Refactor to https://dzone.com/articles/how-to-create-instantiate-a-class-in-nodejs
+
 module.exports = function VDC(url, key, secret) {
   this.client = new (require('cloudstack'))({
     apiUri: url || process.env.CLOUDSTACK_API_URI,
@@ -43,8 +46,6 @@ module.exports = function VDC(url, key, secret) {
   this.updateZones = function () {
     var zones = [];
     this.client.exec('listZones', {}, (error, result) => {
-      console.log(error);
-      console.log(result);
       zones = result.zone;
       if (zones) {
         zones.forEach(function (zone) {
@@ -63,7 +64,7 @@ module.exports = function VDC(url, key, secret) {
       console.log("VM is stopped, going to start");
     }
   }
-  
+
   var stopVM = function (vm) {
     console.log("Running stopVM on " + vm.id);
     if (vm.state === 'Stopped') {
