@@ -21,6 +21,7 @@
     "grunt": "^1.0.2",
     "grunt-complexity": "^1.1.0",
     "grunt-contrib-watch": "^1.0.0",
+    "grunt-run": "^0.8.0",
     "gruntify-eslint": "^4.0.0",
     "jest": "^22.4.3",
     "mocha": "^5.0.5"

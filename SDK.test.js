@@ -3,19 +3,30 @@ const VDC = require('./SDK.js');
 
 var vdc = new VDC(update=false);
 
-test('update data objects', done => {
-  expect(vdc.virtualmachines.length).toBe(0);
-  setTimeout(function () {
-    vdc.updateAll();
-    expect(vdc.virtualmachines.length).toBeGreaterThan(0);
-    done();
-  }, 3000)
+test('listVirtualMachines', () => {
+  expect(vdc.virtualmachines.list.length).toBe(0);
+  vdc.listVirtualMachines((error, vdc) => {
+    expect(error).toBeNull();
+    expect(vdc.virtualmachines.list.length).toBeGreaterThan(0);
+  })
 })
 
-test('zones object is not 0 length', () => {
-  expect(vdc.zones.length).toBeGreaterThan(0);
+test('listZones', () => {
+  expect(vdc.zones.list.length).toBe(0);
+  vdc.listZones((error, vdc) => {
+    expect(error).toBeNull();
+    expect(vdc.zones.list.length).toBeGreaterThan(0);
+  })
 })
 
-test('templates object is not 0 length', () => {
-  expect(vdc.templates.length).toBeGreaterThan(0);
+test('listTemplates', () => {
+  // expect(vdc.templates.list.length).toBe(0);
+  vdc.listTemplates((error, vdc) => {
+    expect(error).toBeNull();
+    expect(vdc.templates.list.length).toBeGreaterThan(0);
+  })
+})
+
+test('VM Search', () => {
+  expect(vdc.virtualmachines.search("zch-jmp1")).toBeDefined;
 })

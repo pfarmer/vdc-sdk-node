@@ -10,23 +10,33 @@ module.exports = function (grunt) {
         options: {
           breakOnErrors: false,
           errorsOnly: false,               // show only maintainability errors
-          cyclomatic: [3, 7, 12],          // or optionally a single value, like 3
-          halstead: [8, 13, 20],           // or optionally a single value, like 8
+          cyclomatic: [10, 20],          // or optionally a single value, like 3
+          halstead: [10, 20],           // or optionally a single value, like 8
           maintainability: 100,
           hideComplexFunctions: false,     // only display maintainability
           broadcast: false,                 // broadcast data over event-bus
         },
       },
     },
+    run: {
+      jest: {
+        cmd: 'jest',
+        args: [
+          '--coverage',
+        ]
+      }
+    },
     watch: {
       files: '<%= files %>',
-      tasks: ['complexity'],
+      tasks: ['run:jest', 'complexity'],
     },
+
   });
 
   grunt.loadNpmTasks('grunt-complexity');
   grunt.loadNpmTasks('gruntify-eslint');
   grunt.loadNpmTasks('grunt-contrib-watch');
-  grunt.registerTask('default', ['eslint', 'complexity']);
+  grunt.loadNpmTasks('grunt-run');
+  grunt.registerTask('default', ['run', 'eslint', 'complexity']);
   // grunt.registerTask('default', ['complexity']);
 };
