@@ -27,6 +27,22 @@ test('listTemplates', () => {
   })
 })
 
+test('listVolumes', () => {
+  expect(vdc.volumes.list.length).toBe(0);
+  vdc.listVolumes((error, vdc) => {
+    expect(error).toBeNull();
+    expect(vdc.volumes.list.length).toBeGreaterThan(0);
+  })
+})
+
+test('listNetworks', () => {
+  expect(vdc.networks.list.length).toBe(0);
+  vdc.listNetworks((error, vdc) => {
+    expect(error).toBeNull();
+    expect(vdc.networks.list.length).toBeGreaterThan(0);
+  })
+})
+
 test('VM Search', () => {
   expect(vdc.virtualmachines.search("zch-jmp1")).toBeDefined;
 })

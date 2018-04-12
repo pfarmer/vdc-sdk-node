@@ -33,6 +33,10 @@ function VDC(url, key, secret, update) {
     'ready': false,
     'list': []
   }
+  this.networks = {
+    'ready': false,
+    'list': []
+  }
   this.lastError = "";
 
   return this;
@@ -69,8 +73,6 @@ VDC.prototype.listZones = function (callback) {
   });
 }
 
-
-
 VDC.prototype.listServiceOfferings = function () {
   this.serviceofferings.ready = false;
   this.client.exec('listServiceOfferings', {}, (error, result) => {
@@ -97,21 +99,43 @@ VDC.prototype.listTemplates = function (callback) {
   })
 }
 
+
 VDC.prototype.listNetworks = function (callback) {
+  this.networks.ready = false;
   this.client.exec('listNetworks', {}, (error, result) => {
     if (error) {
       this.lastError = error;
       typeof callback === 'function' && callback(error, this);
+    } else {
+      this.networks.list = result.network;
+      this.networks.ready = true;
+      typeof callback === 'function' && callback(null, this);
     }
-    this.networks = result.network;
-    typeof callback === 'function' && callback();
   })
 }
 
 VDC.prototype.listVolumes = function (callback) {
-  // TODO: Finish this
-  typeof callback === 'function' && callback();
+  this.volumes.ready = false;
+  this.client.exec('listVolumes', {}, (error, result) => {
+    if (error) {
+      this.lastError = error;
+      typeof callback === 'function' && callback(error, this);
+    }
+    this.volumes.list = result.volume;
+    this.volumes.ready = true;
+    typeof callback === 'function' && callback(null, this);
+  })
 }
+
+// TODO: listAffinityGroups
+// TODO: listAsyncJobs
+// TODO: listEvents
+// TODO: firewallrules
+// TODO: listisos
+// TODO: listnics
+// TODO: listsnapshots
+// TODO: listsnapshotpolicies
+// TODO: listsshkeypairs
 
 VDC.prototype.updateAll = function (callback) {
   this.listZones();
@@ -193,5 +217,3 @@ function searchVMs(vdc, search) {
 }
 
 module.exports = VDC;
-
-// vdc.virtualmachines.find(vm => vm.json.name === 'zch-jmp1')
