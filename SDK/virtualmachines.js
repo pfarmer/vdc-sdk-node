@@ -1,30 +1,36 @@
 function builder(vm, vdc) {
   return {
     json: vm,
-    start: function () {
-      return startVM(vm, vdc);
+    start: function (callback) {
+      return startVM(vm, vdc, callback);
     },
-    stop: function () {
-      return stopVM(vm, vdc);
+    stop: function (callback) {
+      return stopVM(vm, vdc, callback);
     },
-    delete: function () {
-      return deleteVM(vm, vdc);
+    delete: function (callback) {
+      return deleteVM(vm, vdc, callback);
+    },
+    attachVolume: function (volume, callback) {
+      // TODO: write attachvolume func
+      return attachVolume(vm, vdc, volume, callback);
     }
   }
 }
 
-function startVM(vm, vdc) {
+function startVM(vm, vdc, callback) {
+  // TODO: Refactor out vdc arg ('this' should be available...)
   console.log("Running startVM on " + vm.id);
   if (vm.state === 'Running') {
     console.log("VM is already running, doing nothing!");
-    return false;
+    typeof callback === 'function' && callback(error, vdc);
   } else {
     console.log("VM is stopped, going to start");
-    return true;
+    typeof callback === 'function' && callback(error, vdc);
   }
 }
 
 function stopVM(vm, vdc, callback) {
+  // TODO: Refactor out vdc arg ('this' should be available...)
   console.log("Running stopVM on " + vm.id);
   console.log("stopVM (this) = " + this);
   console.log(this.client);
@@ -43,6 +49,7 @@ function stopVM(vm, vdc, callback) {
             console.log(result);
             if (result.jobstatus === 1) {
               if (result.jobresultcode === 0) {
+                console.log("job completed")
                 // Looks like the job completed deployed!
                 clearInterval(timer);
                 typeof callback === 'function' && callback(null, result);
@@ -59,14 +66,15 @@ function stopVM(vm, vdc, callback) {
   }
 }
 
-function deleteVM(vm, vdc) {
+function deleteVM(vm, vdc, callback) {
+  // TODO: Refactor out vdc arg ('this' should be available...)
   console.log("Running deleteVM on " + vm.id);
   if (vm.state !== 'Stopped') {
     console.log("VM is not stopped, please stop first")
-    return false;
+    typeof callback === 'function' && callback(error, vdc);
   } else {
     console.log("VM is stopped, going to delete");
-    return true;
+    typeof callback === 'function' && callback(error, vdc);
   }
 }
 
