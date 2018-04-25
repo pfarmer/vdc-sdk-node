@@ -4,6 +4,12 @@ Author: Peter Farmer
 
 */
 
+const vmFuncs       = require('./SDK/virtualmachines')
+const volFuncs      = require('./SDK/volumes')
+const templateFuncs = require('./SDK/templates')
+const networkFuncs  = require('./SDK/networks')
+const soFuncs       = require('./SDK/serviceofferings')
+
 function VDC(url, key, secret, update) {
   this.client = new (require('cloudstack'))({
     apiUri: url || process.env.CLOUDSTACK_API_URI,
@@ -14,7 +20,7 @@ function VDC(url, key, secret, update) {
     'ready': false,
     'list': [],
     'search': function (search) {
-      return searchVMs(this, search);
+      return vmFuncs.searchVMs(this, search);
     },
   };
   this.zones = {
@@ -27,7 +33,10 @@ function VDC(url, key, secret, update) {
   }
   this.serviceofferings = {
     'ready': false,
-    'list': []
+    'list': [],
+    'search': function (search, field) {
+      return soFuncs.search(this, search, field);
+    }
   }
   this.volumes = {
     'ready': false,
@@ -43,21 +52,8 @@ function VDC(url, key, secret, update) {
 }
 
 /* listVirtualMachines */
-VDC.prototype.listVirtualMachines = function (callback) {
-  var virtualmachines = [];
-  this.virtualmachines.ready = false;
-  this.client.exec('listVirtualMachines', {}, (error, result) => {
-    if (error) {
-      this.lastError = error;
-      typeof callback === 'function' && callback(error, this);
-    }
-    result.virtualmachine.forEach((vm) => {
-      this.virtualmachines.list.push(_vm(vm))
-    })
-    this.virtualmachines.ready = true;
-    typeof callback === 'function' && callback(null, this);
-  });
-}
+VDC.prototype.listVirtualMachines = vmFuncs.listVirtualMachines;
+VDC.prototype.listVolumes = volFuncs.listVolumes;
 
 VDC.prototype.listZones = function (callback) {
   this.zones.ready = false;
@@ -73,7 +69,7 @@ VDC.prototype.listZones = function (callback) {
   });
 }
 
-VDC.prototype.listServiceOfferings = function () {
+VDC.prototype.listServiceOfferings = function (callback) {
   this.serviceofferings.ready = false;
   this.client.exec('listServiceOfferings', {}, (error, result) => {
     if (error) {
@@ -86,46 +82,9 @@ VDC.prototype.listServiceOfferings = function () {
   })
 }
 
-VDC.prototype.listTemplates = function (callback) {
-  this.templates.ready = false;
-  this.client.exec('listTemplates', {'templatefilter': 'all'}, (error, result) => {
-    if (error) {
-      this.lastError = error;
-      typeof callback === 'function' && callback(error, this);
-    }
-    this.templates.list = result.template;
-    this.templates.ready = true;
-    typeof callback === 'function' && callback(null, this);
-  })
-}
-
-
-VDC.prototype.listNetworks = function (callback) {
-  this.networks.ready = false;
-  this.client.exec('listNetworks', {}, (error, result) => {
-    if (error) {
-      this.lastError = error;
-      typeof callback === 'function' && callback(error, this);
-    } else {
-      this.networks.list = result.network;
-      this.networks.ready = true;
-      typeof callback === 'function' && callback(null, this);
-    }
-  })
-}
-
-VDC.prototype.listVolumes = function (callback) {
-  this.volumes.ready = false;
-  this.client.exec('listVolumes', {}, (error, result) => {
-    if (error) {
-      this.lastError = error;
-      typeof callback === 'function' && callback(error, this);
-    }
-    this.volumes.list = result.volume;
-    this.volumes.ready = true;
-    typeof callback === 'function' && callback(null, this);
-  })
-}
+VDC.prototype.listTemplates = templateFuncs.listTemplates;
+VDC.prototype.listNetworks = networkFuncs.listNetworks;
+VDC.prototype.deployVM = vmFuncs.deployVM;
 
 // TODO: listAffinityGroups
 // TODO: listAsyncJobs
@@ -144,76 +103,6 @@ VDC.prototype.updateAll = function (callback) {
   this.listTemplates();
   this.listNetworks();
   typeof callback === 'function' && callback();
-}
-
-VDC.prototype.deployVM = function(details) {
-  console.log("Running deploy VM");
-  if (!details.serviceoffering) {
-    this.lastError = "No service offerings";
-    return false;
-  }
-
-  if (!details.zone) {
-    this.lastError = "No zone";
-    return false;
-  }
-
-  if (!details.template) {
-    this.lastError = "No template";
-    return false;
-  }
-
-  return true;
-}
-
-function _vm(vm) {
-  return {
-    json: vm,
-    start: function () {
-      return startVM(vm);
-    },
-    stop: function () {
-      return stopVM(vm);
-    },
-    delete: function () {
-      return deleteVM(vm);
-    }
-  }
-};
-
-function startVM(vm) {
-  console.log("Running startVM on " + vm.id);
-  if (vm.state === 'Running') {
-    console.log("VM is already running, doing nothing!");
-    return false;
-  } else {
-    console.log("VM is stopped, going to start");
-    return true;
-  }
-}
-
-function stopVM(vm) {
-  console.log("Running stopVM on " + vm.id);
-  if (vm.state === 'Stopped') {
-    console.log("VM is already stopped, doing nothing!");
-    return false;
-  } else {
-    console.log("VM is Running, going to stop");
-    return true;
-  }
-}
-
-function deleteVM(vm) {
-  console.log("Running deleteVM on " + vm.id);
-  if (vm.state !== 'Stopped') {
-    console.log("VM is not stopped, please stop first")
-  } else {
-    console.log("VM is stopped, going to delete");
-  }
-}
-
-function searchVMs(vdc, search) {
-  return vdc.list.find(vm => vm.json.name === search)
 }
 
 module.exports = VDC;
