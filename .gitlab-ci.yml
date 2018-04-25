@@ -2,6 +2,7 @@ image: node:latest
 
 test:
   script:
+  - export PATH=$PATH:./node_modules/.bin/
   - npm install
   - npm install jest
   - jest 
