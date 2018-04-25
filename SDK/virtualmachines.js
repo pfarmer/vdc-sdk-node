@@ -112,8 +112,28 @@ function deleteVM(vm, vdc, callback) {
   }
 }
 
-function attachVolume(vm, volumwe, vdc, callback) {
-  return true;
+function attachVolume(vm, vol, vdc, callback) {
+  vdc.client.exec('attachVolume', {'id': vol.id, 'virtualmachineid': vm.id}, (error, result) => {
+    if (error) {
+      typeof callback === 'function' && callback(error, vdc);
+    } else {
+      // Check the job response every 5 seconds
+      let timer = setInterval(() => {
+        vdc.client.exec('queryAsyncJobResult', {'jobid': result.jobid}, (error, result) => {
+          if (result.jobstatus === 1) {
+            if (result.jobresultcode === 0) {
+              // console.log("job complete")
+              clearInterval(timer);
+              typeof callback === 'function' && callback(null, result);
+            } else {
+              clearInterval(timer);
+              typeof callback === 'function' && callback(result, null);
+            }
+          }
+        })
+      }, 5000)
+    }
+  })
 }
 
 module.exports = {
