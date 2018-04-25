@@ -33,11 +33,6 @@ describe('Virtual Machines functions', () => {
       'name': vm_name
     };
     vdc.deployVM(deployment_data, (error, result) => {
-      if (error) {
-        console.log("error : " + error);
-      } else {
-        console.log(result);
-      }
       expect(result.jobstatus).toBe(1);
       expect(result.jobresultcode).toBe(0);
       done();
@@ -47,20 +42,50 @@ describe('Virtual Machines functions', () => {
   test('Find and stop the Virtual Machine', done => {
     vdc.listVirtualMachines((error, vdc) => {
       let the_vm = vdc.virtualmachines.search(vm_name);
-      console.log("VM = " + the_vm);
       expect(the_vm).toBeDefined();
       the_vm.stop((error, result) => {
-        if (error) {
-          console.log("error : " + error);
-        } else {
-          console.log(result);
-        }
         expect(result.jobstatus).toBe(1);
         expect(result.jobresultcode).toBe(0);
         done();
       })
     })
   });
+
+  test('Find and start the Virtual Machine', done => {
+    vdc.listVirtualMachines((error, vdc) => {
+      let the_vm = vdc.virtualmachines.search(vm_name);
+      expect(the_vm).toBeDefined();
+      the_vm.start((error, result) => {
+        expect(result.jobstatus).toBe(1);
+        expect(result.jobresultcode).toBe(0);
+        done();
+      })
+    })
+  });
+
+  test('Find and stop the Virtual Machine (again)', done => {
+    vdc.listVirtualMachines((error, vdc) => {
+      let the_vm = vdc.virtualmachines.search(vm_name);
+      expect(the_vm).toBeDefined();
+      the_vm.stop((error, result) => {
+        expect(result.jobstatus).toBe(1);
+        expect(result.jobresultcode).toBe(0);
+        done();
+      })
+    })
+  });
+
+  test('Delete a virtualmachine', done => {
+    vdc.listVirtualMachines((error, vdc) => {
+      let the_vm = vdc.virtualmachines.search(vm_name);
+      expect(the_vm).toBeDefined();
+      the_vm.delete((error, result) => {
+        expect(result.jobstatus).toBe(1);
+        expect(result.jobresultcode).toBe(0);
+        done();
+      })
+    })
+  })
 
 })
 

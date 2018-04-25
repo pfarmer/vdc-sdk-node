@@ -18,27 +18,43 @@ function builder(vm, vdc) {
 }
 
 function startVM(vm, vdc, callback) {
-  // TODO: Refactor out vdc arg ('this' should be available...)
-  console.log("Running startVM on " + vm.id);
+  // console.log("Running startVM on " + vm.id);
   if (vm.state === 'Running') {
-    console.log("VM is already running, doing nothing!");
-    typeof callback === 'function' && callback(error, vdc);
+    // console.log("VM is already running, doing nothing!");
+    typeof callback === 'function' && callback("error: VM is already running", vdc);
   } else {
-    console.log("VM is stopped, going to start");
-    typeof callback === 'function' && callback(error, vdc);
+    // console.log("VM is stopped, going to start");
+    vdc.client.exec('startVirtualMachine', {'id': vm.id}, (error, result) => {
+      if (error) {
+        typeof callback === 'function' && callback(error, vdc);
+      } else {
+        let timer = setInterval(() => {
+          vdc.client.exec('queryAsyncJobResult', {'jobid': result.jobid}, (error, result) => {
+            // console.log(result);
+            if (result.jobstatus === 1) {
+              if (result.jobresultcode === 0) {
+                // console.log("Start job complete");
+                clearInterval(timer);
+                typeof callback === 'function' && callback(null, result);
+              } else {
+                clearInterval(timer);
+                typeof callback === 'function' && callback(result, result);
+              }
+            }
+          })
+        }, 5000)
+      }
+    })
+    return true;
   }
 }
 
 function stopVM(vm, vdc, callback) {
-  // TODO: Refactor out vdc arg ('this' should be available...)
-  console.log("Running stopVM on " + vm.id);
-  console.log("stopVM (this) = " + this);
-  console.log(this.client);
   if (vm.state === 'Stopped') {
-    console.log("VM is already stopped, doing nothing!");
+    // console.log("VM is already stopped, doing nothing!");
     return false;
   } else {
-    console.log("VM is Running, going to stop");
+    // console.log("VM is Running, going to stop");
     vdc.client.exec('stopVirtualMachine', {'id': vm.id}, (error, result) => {
       if (error) {
         typeof callback === 'function' && callback(error, vdc);
@@ -46,11 +62,9 @@ function stopVM(vm, vdc, callback) {
         // Check the job response every 5 seconds
         let timer = setInterval(() => {
           vdc.client.exec('queryAsyncJobResult', {'jobid': result.jobid}, (error, result) => {
-            console.log(result);
             if (result.jobstatus === 1) {
               if (result.jobresultcode === 0) {
-                console.log("job completed")
-                // Looks like the job completed deployed!
+                // Looks like the job completed!
                 clearInterval(timer);
                 typeof callback === 'function' && callback(null, result);
               } else {
@@ -67,15 +81,39 @@ function stopVM(vm, vdc, callback) {
 }
 
 function deleteVM(vm, vdc, callback) {
-  // TODO: Refactor out vdc arg ('this' should be available...)
-  console.log("Running deleteVM on " + vm.id);
   if (vm.state !== 'Stopped') {
-    console.log("VM is not stopped, please stop first")
-    typeof callback === 'function' && callback(error, vdc);
+    // console.log("VM is not stopped, please stop first")
+    typeof callback === 'function' && callback("VM is not stopped, please stop first", vdc);
   } else {
-    console.log("VM is stopped, going to delete");
-    typeof callback === 'function' && callback(error, vdc);
+    // console.log("VM is stopped, going to delete");
+    // TODO: Add option to expunge or not.
+    vdc.client.exec('destroyVirtualMachine', {'id': vm.id, 'expunge': 'true'}, (error, result) => {
+      if (error) {
+        typeof callback === 'function' && callback(error, vdc);
+      } else {
+        // Check the job response every 5 seconds
+        let timer = setInterval(() => {
+          vdc.client.exec('queryAsyncJobResult', {'jobid': result.jobid}, (error, result) => {
+            if (result.jobstatus === 1) {
+              if (result.jobresultcode === 0) {
+                // console.log("job complete")
+                clearInterval(timer);
+                typeof callback === 'function' && callback(null, result);
+              } else {
+                clearInterval(timer);
+                typeof callback === 'function' && callback(result, null);
+              }
+            }
+          })
+        }, 5000)
+      }
+    })
+    return true;
   }
+}
+
+function attachVolume(vm, volumwe, vdc, callback) {
+  return true;
 }
 
 module.exports = {
@@ -85,6 +123,7 @@ module.exports = {
 
   listVirtualMachines: function(callback) {
     this.virtualmachines.ready = false;
+    this.virtualmachines.list = [];
     this.client.exec('listVirtualMachines', {}, (error, result) => {
       if (error) {
         this.lastError = error;
