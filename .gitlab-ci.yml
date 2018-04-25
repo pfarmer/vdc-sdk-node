@@ -5,4 +5,4 @@ test:
   - export PATH=$PATH:./node_modules/.bin/
   - npm install
   - npm install jest
-  - jest 
+  - jest --coverage
