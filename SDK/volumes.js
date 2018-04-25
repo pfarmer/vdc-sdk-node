@@ -39,5 +39,39 @@ module.exports = {
       this.volumes.ready = true;
       typeof callback === 'function' && callback(null, this);
     })
-  }
+  },
+
+  createVolume: function(details, callback) {
+    if (!details.name) {
+      this.lastError = "No disk name provided";
+      typeof callback === 'function' && callback("No disk name provided", this);
+      return false;
+    }
+    if (!details.serviceofferings) {
+      this.lastError = "No disk offering provided";
+      typeof callback === 'function' && callback("No disk offering provided", this);
+      return false;      
+    }
+    if (!details.size) {
+      this.lastError = "No disk size provided";
+      typeof callback === 'function' && callback("No disk size provided", this);
+      return false;        
+    }
+
+
+  },
+
+  listDiskOfferings: function (callback) {
+    this.diskofferings.ready = false;
+    this.client.exec('listDiskOfferings', {}, (error, result) => {
+      if (error) {
+        this.lastError = error;
+        typeof callback === 'function' && callback(error, this);
+      }
+      console.log(result)
+      this.diskofferings.list = result.diskoffering;
+      this.diskofferings.ready = true;
+      typeof callback === 'function' && callback(null, this);
+    })
+  },
 }
