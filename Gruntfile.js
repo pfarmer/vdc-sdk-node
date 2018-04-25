@@ -1,6 +1,6 @@
 module.exports = function (grunt) {
   grunt.initConfig({
-    files: ['SDK.js'],
+    files: ['SDK.js', 'SDK/*'],
     eslint: {
       src: '<%= files %>',
     },
@@ -10,8 +10,8 @@ module.exports = function (grunt) {
         options: {
           breakOnErrors: false,
           errorsOnly: false,               // show only maintainability errors
-          cyclomatic: [10, 20],          // or optionally a single value, like 3
-          halstead: [10, 20],           // or optionally a single value, like 8
+          cyclomatic: [15, 20],          // or optionally a single value, like 3
+          halstead: [15, 20],           // or optionally a single value, like 8
           maintainability: 100,
           hideComplexFunctions: false,     // only display maintainability
           broadcast: false,                 // broadcast data over event-bus
@@ -37,6 +37,6 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('gruntify-eslint');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-run');
-  grunt.registerTask('default', ['run', 'eslint', 'complexity']);
+  grunt.registerTask('default', ['eslint', 'complexity', 'run']);
   // grunt.registerTask('default', ['complexity']);
 };
