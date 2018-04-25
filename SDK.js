@@ -46,6 +46,12 @@ function VDC(url, key, secret, update) {
     'ready': false,
     'list': []
   }
+  this.diskofferings = {
+    'ready': false,
+    'list': [],
+  }
+
+
   this.lastError = "";
 
   return this;
@@ -54,6 +60,7 @@ function VDC(url, key, secret, update) {
 /* listVirtualMachines */
 VDC.prototype.listVirtualMachines = vmFuncs.listVirtualMachines;
 VDC.prototype.listVolumes = volFuncs.listVolumes;
+VDC.prototype.listDiskOfferings = volFuncs.listDiskOfferings;
 
 VDC.prototype.listZones = function (callback) {
   this.zones.ready = false;
