@@ -3,4 +3,5 @@ image: node:latest
 test:
   script:
   - npm install
+  - npm install jest
   - jest 
