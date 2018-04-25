@@ -91,7 +91,7 @@ describe('Virtual Machines functions', () => {
 
 
 describe('Zone functions', () => {
-  it('listZones', done => {
+  test('listZones', done => {
     // expect(vdc.zones.list.length).toBe(0);
     vdc.listZones((error, vdc) => {
       // expect(error).toBeNull();
@@ -102,7 +102,7 @@ describe('Zone functions', () => {
 })
 
 describe('Template functions', () => {
-  it('listTemplates', done => {
+  test('listTemplates', done => {
     expect(vdc.templates.list.length).toBe(0);
     vdc.listTemplates((error, vdc) => {
       expect(error).toBeNull();
@@ -114,7 +114,7 @@ describe('Template functions', () => {
 
 
 describe('Volume functions', () => {
-  it('listVolumes', done => {
+  test('listVolumes', done => {
     expect(vdc.volumes.list.length).toBe(0);
     vdc.listVolumes((error, vdc) => {
       expect(error).toBeNull();
@@ -122,11 +122,19 @@ describe('Volume functions', () => {
       done();
     })
   })
+  test('listDiskOfferings', done => {
+    expect(vdc.diskofferings.list.length).toBe(0);
+    vdc.listDiskOfferings((error, vdc) => {
+      expect(error).toBeNull();
+      expect(vdc.diskofferings.list.length).toBeGreaterThan(0);
+      done();
+    })
+  })
 })
 
 
 describe('Network Functions', () => {
-  it('listNetworks', done => {
+  test('listNetworks', done => {
     vdc.listNetworks((error, vdc) => {
       expect(error).toBeNull();
       expect(vdc.networks.list.length).toBeGreaterThan(0);
