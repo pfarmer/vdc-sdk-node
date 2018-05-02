@@ -14,7 +14,7 @@ codeclimate:
     - echo $PWD
     - docker run --env CODECLIMATE_CODE="$VOLUME_PATH" -v /tmp/cc:/tmp/cc -v $VOLUME_PATH:/code -v /var/run/docker.sock:/var/run/docker.sock codeclimate/codeclimate analyze
   artifacts:
-    paths: [codeclimate.json]%
+    paths: [codeclimate.json]
 
 test:
   script:
