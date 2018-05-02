@@ -1,0 +1,21 @@
+---
+engines:
+  duplication:
+    enabled: false
+    config:
+      languages:
+      - javascript
+  fixme:
+    enabled: true
+    config:
+      strings:
+      - FIXME
+      - TODO
+      - BUG
+  radon:
+    enabled: true
+  pep8:
+    enabled: false
+ratings:
+  paths:
+  - "**.js"
