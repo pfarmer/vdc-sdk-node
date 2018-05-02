@@ -42,12 +42,13 @@ module.exports = {
   },
 
   createVolume: function(details, callback) {
+    // Requires: name, diskofferingid, size and zoneid
     if (!details.name) {
       this.lastError = "No disk name provided";
       typeof callback === 'function' && callback("No disk name provided", this);
       return false;
     }
-    if (!details.serviceofferings) {
+    if (!details.diskofferingid) {
       this.lastError = "No disk offering provided";
       typeof callback === 'function' && callback("No disk offering provided", this);
       return false;      
@@ -57,8 +58,34 @@ module.exports = {
       typeof callback === 'function' && callback("No disk size provided", this);
       return false;        
     }
+    if (!details.zoneid) {
+      this.lastError = "No zone id provided";
+      typeof callback === 'function' && callback("No zone id provided", this);
+      return false; 
+    }
 
-
+    this.client.exec('createVolume', details, (error, result) => {
+      if (error) {
+        typeof callback === 'function' && callback(error, this);
+      } else {
+        // Check the job response every 5 seconds
+        let timer = setInterval(() => {
+          this.client.exec('queryAsyncJobResult', {'jobid': result.jobid}, (error, result) => {
+            if (result.jobstatus === 1) {
+              if (result.jobresultcode === 0) {
+                // Job completed sucessfully
+                clearInterval(timer);
+                callback(null, result);
+              } else {
+                clearInterval(timer);
+                callback(result, null);
+              }
+            } 
+          })
+        }, 5000)
+      }
+    })
+    console.log("Dropped out of the bottom of createVolume")
   },
 
   listDiskOfferings: function (callback) {
@@ -68,7 +95,6 @@ module.exports = {
         this.lastError = error;
         typeof callback === 'function' && callback(error, this);
       }
-      console.log(result)
       this.diskofferings.list = result.diskoffering;
       this.diskofferings.ready = true;
       typeof callback === 'function' && callback(null, this);

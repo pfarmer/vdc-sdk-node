@@ -5,7 +5,8 @@ const uuid = require('uuid/v4');
 
 var vdc = new VDC(update = false);
 
-let vm_name = "SDK-TEST-" + uuid();
+let vm_name = "SDK-TEST-VM-" + uuid();
+let disk_name = "SDK-TEST-DISK-" + uuid();
 
 jest.setTimeout(600000);
 
@@ -122,11 +123,27 @@ describe('Volume functions', () => {
       done();
     })
   })
+
   test('listDiskOfferings', done => {
     expect(vdc.diskofferings.list.length).toBe(0);
     vdc.listDiskOfferings((error, vdc) => {
       expect(error).toBeNull();
       expect(vdc.diskofferings.list.length).toBeGreaterThan(0);
+      done();
+    })
+  })
+
+  test('createVolume', done => {
+    let disk_data = {
+      'zoneid': 'e564f8cf-efda-4119-b404-b6d00cf434b3',
+      'diskofferingid': '71537cd8-3641-43e5-86d2-c7755b5cd924',
+      'size': '10',
+      'name': disk_name
+    };
+    vdc.createVolume(disk_data, (error, result) => {
+      expect(error).toBeNull();
+      expect(result.jobstatus).toBe(1);
+      expect(result.jobresultcode).toBe(0);
       done();
     })
   })
@@ -142,12 +159,6 @@ describe('Network Functions', () => {
     })
   })
 
-  // it('deleteNetwork', done => {
-  //   vdc.listNetworks((error, vdc) => {
-  //     expect(vdc.networks.list[0].delete()).toBeTruthy();
-  //     done();
-  //   })
-  // })
 })
 
 
@@ -161,23 +172,3 @@ describe('Service Offerings functions', () => {
     })
   })
 })
-
-
-// describe('Deploy Virtual Machine', () => {
-//   deployment_data = {
-//     'zoneid': 'e564f8cf-efda-4119-b404-b6d00cf434b3',
-//     'serviceofferingid': 'b2298f9e-464c-49ac-879e-d539be9ed048',
-//     'templateid': '67ef3c09-9a42-46f7-9337-7cbf24811161',
-//     'name': vm_name
-//   };
-//   test('deployVirtualMachine', done => {
-//     vdc.deployVM(deployment_data, (error, result) => {
-//       if (error) {
-//         console.log("error : " + error);
-//       } else {
-//         console.log(result);
-//       }
-//       done();
-//     })
-//   })
-// })

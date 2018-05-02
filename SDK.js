@@ -57,10 +57,15 @@ function VDC(url, key, secret, update) {
   return this;
 }
 
-/* listVirtualMachines */
+/* Virtual Machine functions  */
 VDC.prototype.listVirtualMachines = vmFuncs.listVirtualMachines;
+
+/* Volume functions */
 VDC.prototype.listVolumes = volFuncs.listVolumes;
+VDC.prototype.createVolume = volFuncs.createVolume;
 VDC.prototype.listDiskOfferings = volFuncs.listDiskOfferings;
+
+/* General functions */
 
 VDC.prototype.listZones = function (callback) {
   this.zones.ready = false;
