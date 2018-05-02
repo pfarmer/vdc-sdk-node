@@ -1,5 +1,21 @@
 image: node:latest
 
+codeclimate:
+  image: docker:latest
+  variables:
+    DOCKER_DRIVER: overlay
+  services:
+    - docker:dind
+  script:
+    - docker pull codeclimate/codeclimate
+    - VOLUME_PATH=/tmp/builds"$(echo $PWD | sed 's|^/[^/]*||')"
+    - docker run -v /tmp/cc:/tmp/cc -v $VOLUME_PATH:/code -v /var/run/docker.sock:/var/run/docker.sock codeclimate/codeclimate validate-config
+    - ls -lash $PWD
+    - echo $PWD
+    - docker run --env CODECLIMATE_CODE="$VOLUME_PATH" -v /tmp/cc:/tmp/cc -v $VOLUME_PATH:/code -v /var/run/docker.sock:/var/run/docker.sock codeclimate/codeclimate analyze
+  artifacts:
+    paths: [codeclimate.json]%
+
 test:
   script:
   - export PATH=$PATH:./node_modules/.bin/
