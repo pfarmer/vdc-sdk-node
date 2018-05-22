@@ -11,6 +11,7 @@ let disk_name = "SDK-TEST-DISK-" + uuid();
 jest.setTimeout(600000);
 
 // TODO: it for failures
+// TODO: reorder tests, so that Virtual Machine tests come last.
 
 describe('Virtual Machines functions', () => {
   test('listVirtualMachines', done => {
@@ -28,9 +29,9 @@ describe('Virtual Machines functions', () => {
 
   test('Deploy Virtual Machine', done => {
     let deployment_data = {
-      'zoneid': 'e564f8cf-efda-4119-b404-b6d00cf434b3',
-      'serviceofferingid': 'b2298f9e-464c-49ac-879e-d539be9ed048',
-      'templateid': '67ef3c09-9a42-46f7-9337-7cbf24811161',
+      'zoneid': process.env.ZONE_ID,
+      'serviceofferingid': process.env.SERVICEOFFERING_ID,
+      'templateid': process.env.TEMPLATE_ID,
       'name': vm_name
     };
     vdc.deployVM(deployment_data, (error, result) => {
@@ -114,7 +115,7 @@ describe('Template functions', () => {
 })
 
 
-describe('Volume functions', () => {
+describe('Volume functions (list and create)', () => {
   test('listVolumes', done => {
     expect(vdc.volumes.list.length).toBe(0);
     vdc.listVolumes((error, vdc) => {
@@ -135,8 +136,8 @@ describe('Volume functions', () => {
 
   test('createVolume', done => {
     let disk_data = {
-      'zoneid': 'e564f8cf-efda-4119-b404-b6d00cf434b3',
-      'diskofferingid': '71537cd8-3641-43e5-86d2-c7755b5cd924',
+      'zoneid': process.env.ZONE_ID,
+      'diskofferingid': process.env.DISKOFFERING_ID,
       'size': '10',
       'name': disk_name
     };
