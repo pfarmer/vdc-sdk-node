@@ -65,6 +65,9 @@ VDC.prototype.listVolumes = volFuncs.listVolumes;
 VDC.prototype.createVolume = volFuncs.createVolume;
 VDC.prototype.listDiskOfferings = volFuncs.listDiskOfferings;
 
+/* Service offering functions */
+VDC.prototype.listServiceOfferings = soFuncs.listServiceOfferings;
+
 /* General functions */
 
 VDC.prototype.listZones = function (callback) {
@@ -81,18 +84,18 @@ VDC.prototype.listZones = function (callback) {
   });
 }
 
-VDC.prototype.listServiceOfferings = function (callback) {
-  this.serviceofferings.ready = false;
-  this.client.exec('listServiceOfferings', {}, (error, result) => {
-    if (error) {
-      this.lastError = error;
-      typeof callback === 'function' && callback(error, this);
-    }
-    this.serviceofferings.list = result.serviceoffering;
-    this.serviceofferings.ready = true;
-    typeof callback === 'function' && callback(null, this);
-  })
-}
+// VDC.prototype.listServiceOfferings = function (callback) {
+//   this.serviceofferings.ready = false;
+//   this.client.exec('listServiceOfferings', {}, (error, result) => {
+//     if (error) {
+//       this.lastError = error;
+//       typeof callback === 'function' && callback(error, this);
+//     }
+//     this.serviceofferings.list = result.serviceoffering;
+//     this.serviceofferings.ready = true;
+//     typeof callback === 'function' && callback(null, this);
+//   })
+// }
 
 VDC.prototype.listTemplates = templateFuncs.listTemplates;
 VDC.prototype.listNetworks = networkFuncs.listNetworks;

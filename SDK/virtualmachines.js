@@ -142,13 +142,15 @@ module.exports = {
   },
 
   listVirtualMachines: function(callback) {
+    // TODO: Nicely handle pages
     this.virtualmachines.ready = false;
     this.virtualmachines.list = [];
-    this.client.exec('listVirtualMachines', {}, (error, result) => {
+    this.client.exec('listVirtualMachines', {fetch_list: true}, (error, result) => {
       if (error) {
         this.lastError = error;
         typeof callback === 'function' && callback(error, this);
       }
+
       result.virtualmachine.forEach((vm) => {
         this.virtualmachines.list.push(builder(vm, this))
       })

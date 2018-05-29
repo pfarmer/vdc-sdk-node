@@ -9,7 +9,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "cloudstack": "^0.2.0",
+    "cloudstack": "git+https://github.com/pfarmer/node-cloudstack.git",
     "dotenv": "^5.0.1",
     "jest-cli": "^22.4.3",
     "jest-codemods": "^0.13.9",

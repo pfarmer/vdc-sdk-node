@@ -27,6 +27,7 @@ function deleteVol(vol, vdc) {
 
 module.exports = {
   listVolumes: function(callback) {
+    // TODO: Cleanly handle pages
     this.volumes.ready = false;
     this.client.exec('listVolumes', {}, (error, result) => {
       if (error) {
@@ -85,7 +86,6 @@ module.exports = {
         }, 5000)
       }
     })
-    console.log("Dropped out of the bottom of createVolume")
   },
 
   listDiskOfferings: function (callback) {
