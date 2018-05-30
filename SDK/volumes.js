@@ -26,6 +26,10 @@ function deleteVol(vol, vdc) {
 }
 
 module.exports = {
+  searchVols: function(vdc, search) {
+    return vdc.list.find(vol => vol.json.name === search)
+  },
+
   listVolumes: function(callback) {
     // TODO: Cleanly handle pages
     this.volumes.ready = false;

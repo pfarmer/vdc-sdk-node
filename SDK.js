@@ -40,7 +40,10 @@ function VDC(url, key, secret, update) {
   }
   this.volumes = {
     'ready': false,
-    'list': []
+    'list': [],
+    'search': function (search) {
+      return volFuncs.searchVols(this, search);
+    },
   }
   this.networks = {
     'ready': false,
@@ -64,6 +67,7 @@ VDC.prototype.listVirtualMachines = vmFuncs.listVirtualMachines;
 VDC.prototype.listVolumes = volFuncs.listVolumes;
 VDC.prototype.createVolume = volFuncs.createVolume;
 VDC.prototype.listDiskOfferings = volFuncs.listDiskOfferings;
+VDC.prototype.attachVolume = volFuncs.attachVolume;
 
 /* Service offering functions */
 VDC.prototype.listServiceOfferings = soFuncs.listServiceOfferings;
