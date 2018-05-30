@@ -5,3 +5,10 @@ test:
   - export PATH=$PATH:./node_modules/.bin/
   - npm install
   - grunt
+
+audit:
+  allow_failure: true
+  script:
+  - export PATH=$PATH:./node_modules/.bin/
+  - npm install npm@latest -g
+  - npm audit
