@@ -1,58 +1,127 @@
-// const cloudstack = require('cloudstack');
+/*
 
-module.exports = function VDC () {
-    this.client = new (require('cloudstack'))();
-    this.virtualmachines = [];
+Author: Peter Farmer
 
-    var _vm = function(vm) {
-        return {
-            json: vm,
-            start: function() {
-                startVM(vm);
-            },
-            stop: function() {
-                stopVM(vm);
-            }
-        }
+*/
+
+const vmFuncs       = require('./SDK/virtualmachines')
+const volFuncs      = require('./SDK/volumes')
+const templateFuncs = require('./SDK/templates')
+const networkFuncs  = require('./SDK/networks')
+const soFuncs       = require('./SDK/serviceofferings')
+
+function VDC(url, key, secret, update) {
+  this.client = new (require('cloudstack'))({
+    apiUri: url || process.env.CLOUDSTACK_API_URI,
+    apiKey: key || process.env.CLOUDSTACK_API_KEY,
+    apiSecret: secret || process.env.CLOUDSTACK_API_SECRET,
+  });
+  this.virtualmachines = { 
+    'ready': false,
+    'list': [],
+    'search': function (search) {
+      return vmFuncs.searchVMs(this, search);
+    },
+  };
+  this.zones = {
+    'ready': false,
+    'list': []
+  };
+  this.templates = {
+    'ready': false,
+    'list': []
+  }
+  this.serviceofferings = {
+    'ready': false,
+    'list': [],
+    'search': function (search, field) {
+      return soFuncs.search(this, search, field);
     }
-
-    this.updateVMs = function() {
-        var virtualmachines = [];
-        this.client.exec('listVirtualMachines', {}, (error, result) => {
-            vms = result.virtualmachine;
-            if (vms) {
-                vms.forEach(function(vm) {
-                    virtualmachines.push(_vm(vm));
-                })
-            }
-            // this.virtualmachines = result.virtualmachine;
-        });
-        this.virtualmachines = virtualmachines;
-    }
-
-    var startVM = function(vm) {
-        console.log("Running startVM on " + vm.id);
-        if (vm.state === 'Runnning') {
-            console.log("VM is already running, doing nothing!")
-        } else {
-            console.log("VM is stopped, going to start");
-        }
-    }
-    var stopVM = function(vm) {
-        console.log("Running stopVM on " + vm.id);
-        if (vm.state === 'Stopped') {
-            console.log("VM is already stopped, doing nothing!")
-        } else {
-            console.log("VM is Running, going to stop");
-        }
-    }
-
-    // Real code below here:
-
-    this.updateVMs();
+  }
+  this.volumes = {
+    'ready': false,
+    'list': [],
+    'search': function (search) {
+      return volFuncs.searchVols(this, search);
+    },
+  }
+  this.networks = {
+    'ready': false,
+    'list': []
+  }
+  this.diskofferings = {
+    'ready': false,
+    'list': [],
+  }
 
 
+  this.lastError = "";
+
+  return this;
 }
 
+/* Virtual Machine functions  */
+VDC.prototype.listVirtualMachines = vmFuncs.listVirtualMachines;
 
-// my_vdc.virtualmachines.find(vm => vm.json.name === 'zch-jmp1')
+/* Volume functions */
+VDC.prototype.listVolumes = volFuncs.listVolumes;
+VDC.prototype.createVolume = volFuncs.createVolume;
+VDC.prototype.listDiskOfferings = volFuncs.listDiskOfferings;
+VDC.prototype.attachVolume = volFuncs.attachVolume;
+
+/* Service offering functions */
+VDC.prototype.listServiceOfferings = soFuncs.listServiceOfferings;
+
+/* General functions */
+
+VDC.prototype.listZones = function (callback) {
+  this.zones.ready = false;
+  this.client.exec('listZones', {}, (error, result) => {
+    if (error) {
+      console.log(error)
+      this.lastError = error;
+      typeof callback === 'function' && callback(error, this);
+    }
+    this.zones.list = result.zone;
+    this.zones.ready = true;
+    typeof callback === 'function' && callback(null, this);
+  });
+}
+
+// VDC.prototype.listServiceOfferings = function (callback) {
+//   this.serviceofferings.ready = false;
+//   this.client.exec('listServiceOfferings', {}, (error, result) => {
+//     if (error) {
+//       this.lastError = error;
+//       typeof callback === 'function' && callback(error, this);
+//     }
+//     this.serviceofferings.list = result.serviceoffering;
+//     this.serviceofferings.ready = true;
+//     typeof callback === 'function' && callback(null, this);
+//   })
+// }
+
+VDC.prototype.listTemplates = templateFuncs.listTemplates;
+VDC.prototype.listNetworks = networkFuncs.listNetworks;
+VDC.prototype.deployVM = vmFuncs.deployVM;
+
+// TODO: listAffinityGroups
+// TODO: listAsyncJobs
+// TODO: listEvents
+// TODO: firewallrules
+// TODO: listisos
+// TODO: listnics
+// TODO: listsnapshots
+// TODO: listsnapshotpolicies
+// TODO: listsshkeypairs
+
+VDC.prototype.updateAll = function (callback) {
+  this.listZones();
+  this.listVirtualMachines();
+  this.listServiceOfferings();
+  this.listTemplates();
+  this.listNetworks();
+  typeof callback === 'function' && callback();
+}
+
+module.exports = VDC;

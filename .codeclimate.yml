@@ -1,0 +1,22 @@
+---
+version: "2"
+plugins:
+  duplication:
+    enabled: true
+    config:
+      languages:
+      - javascript
+  fixme:
+    enabled: true
+    config:
+      strings:
+      - FIXME
+      - TODO
+      - BUG
+  eslint:
+    enabled: true
+  nodesecurity:
+    enabled: true
+  requiresafe:
+    enabled: true
+exclude_patterns: ['.idea', 'coverage','Gruntfile.js']
